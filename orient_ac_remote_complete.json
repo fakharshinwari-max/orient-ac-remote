@@ -1,0 +1,88 @@
+{
+  "_readme": "This is the COMPLETE structure for an Orient AC remote — every button a typical split-AC remote has, correctly named and formatted. The 'pattern' fields are null because real IR codes cannot be invented — they must be captured once from your physical Orient remote (see capture/OrientIRCapture.ino). Replace each null with the numbers you capture, flip 'captured' to true, and this file is done. Once filled in, run scripts/export_to_flipper_ir.py to convert it into a .ir file you can import directly into IR Blaster Remote.",
+  "device": "Orient Air Conditioner",
+  "protocol_note": "Almost certainly a 'raw' state-based protocol (not a simple NEC code) — this is normal for AC remotes and is exactly what type: raw / data captures.",
+  "default_frequency_hz": 38000,
+  "buttons": {
+    "Power": {
+      "captured": false,
+      "pattern": null,
+      "frequency": 38000
+    },
+    "Mode_Cool": {
+      "captured": false,
+      "pattern": null,
+      "frequency": 38000
+    },
+    "Mode_Heat": {
+      "captured": false,
+      "pattern": null,
+      "frequency": 38000
+    },
+    "Mode_Fan": {
+      "captured": false,
+      "pattern": null,
+      "frequency": 38000
+    },
+    "Mode_Dry": {
+      "captured": false,
+      "pattern": null,
+      "frequency": 38000
+    },
+    "Mode_Auto": {
+      "captured": false,
+      "pattern": null,
+      "frequency": 38000
+    },
+    "Temp_Up": {
+      "captured": false,
+      "pattern": null,
+      "frequency": 38000
+    },
+    "Temp_Down": {
+      "captured": false,
+      "pattern": null,
+      "frequency": 38000
+    },
+    "Fan_Auto": {
+      "captured": false,
+      "pattern": null,
+      "frequency": 38000
+    },
+    "Fan_Low": {
+      "captured": false,
+      "pattern": null,
+      "frequency": 38000
+    },
+    "Fan_Medium": {
+      "captured": false,
+      "pattern": null,
+      "frequency": 38000
+    },
+    "Fan_High": {
+      "captured": false,
+      "pattern": null,
+      "frequency": 38000
+    },
+    "Swing_Toggle": {
+      "captured": false,
+      "pattern": null,
+      "frequency": 38000
+    },
+    "Sleep": {
+      "captured": false,
+      "pattern": null,
+      "frequency": 38000
+    },
+    "Timer_On": {
+      "captured": false,
+      "pattern": null,
+      "frequency": 38000
+    },
+    "Timer_Off": {
+      "captured": false,
+      "pattern": null,
+      "frequency": 38000
+    }
+  }
+}
