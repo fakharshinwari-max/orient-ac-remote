@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Orient AC — Captured IR Codes</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">Signal Log · Orient AC</p>
+      <h1>Captured remote codes</h1>
+      <p class="sub">
+        Every button below was captured from the real Orient AC remote using
+        <code>capture/OrientIRCapture.ino</code>. Tap "Copy" and paste the
+        pattern into <strong>IR Blaster Remote</strong> → your remote →
+        Add Button → Raw Signal.
+      </p>
+      <div class="status-bar" id="statusBar"></div>
+    </header>
+
+    <main class="remote" id="remote">
+      <!-- populated by script below -->
+    </main>
+
+    <p class="empty-hint" id="emptyHint" style="display:none;">
+      No codes captured yet. Run the capture sketch, save a
+      <code>capture_log.txt</code>, then run
+      <code>python scripts/parse_capture.py capture_log.txt</code> — this
+      page updates automatically from <code>orient_ac_codes.json</code>.
+    </p>
+
+    <footer>
+      Frequency for all captured signals defaults to 38000 Hz unless noted
+      otherwise per button. If a button doesn't respond on the AC after
+      pasting, re-capture it slightly closer to the receiver — weak signal
+      strength is the most common cause of a bad capture, not a wrong protocol.
+    </footer>
+  </div>
+
+  <script>
+    async function loadCodes() {
+      const remoteEl = document.getElementById('remote');
+      const statusEl = document.getElementById('statusBar');
+      const emptyEl = document.getElementById('emptyHint');
+
+      let codes = {};
+      try {
+        const res = await fetch('./orient_ac_codes.json', { cache: 'no-store' });
+        codes = await res.json();
+      } catch (e) {
+        codes = {};
+      }
+
+      const names = Object.keys(codes);
+
+      // Standard AC remote buttons — shown even if not yet captured,
+      // so you can see at a glance what's still missing.
+      const expected = ['Power', 'Temp+', 'Temp-', 'Mode', 'Fan', 'Swing'];
+      const allNames = [...new Set([...expected, ...names])];
+
+      if (names.length === 0) {
+        emptyEl.style.display = 'block';
+      }
+
+      statusEl.innerHTML = `
+        <div><span class="num">${names.length}</span><span class="label">captured</span></div>
+        <div><span class="num">${allNames.length - names.length}</span><span class="label">remaining</span></div>
+      `;
+
+      remoteEl.innerHTML = allNames.map(name => {
+        const entry = codes[name];
+        const captured = !!entry;
+        const patternStr = captured ? entry.pattern.join(',') : '';
+        const preview = captured
+          ? (patternStr.length > 60 ? patternStr.slice(0, 60) + '…' : patternStr)
+          : 'not captured yet';
+
+        return `
+          <div class="button-card ${captured ? 'captured' : ''}">
+            <div class="row">
+              <div class="row" style="gap:8px;">
+                <span class="dot"></span>
+                <span class="button-name">${name}</span>
+              </div>
+              ${captured
+                ? `<button class="copy-btn" data-pattern="${patternStr}">Copy</button>`
+                : ''}
+            </div>
+            ${captured ? `<div class="meta">${entry.pulse_count} pulses · ${entry.frequency} Hz</div>` : ''}
+            <div class="pattern-preview">${preview}</div>
+          </div>
+        `;
+      }).join('');
+
+      remoteEl.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const pattern = btn.getAttribute('data-pattern');
+          try {
+            await navigator.clipboard.writeText(pattern);
+            btn.textContent = 'Copied';
+            btn.classList.add('done');
+            setTimeout(() => {
+              btn.textContent = 'Copy';
+              btn.classList.remove('done');
+            }, 1500);
+          } catch (e) {
+            // Clipboard API blocked (e.g. file:// without a local server) —
+            // fall back to selecting the text so the user can copy manually.
+            const range = document.createRange();
+            const temp = document.createElement('textarea');
+            temp.value = pattern;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            btn.textContent = 'Copied';
+            setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
+          }
+        });
+      });
+    }
+
+    loadCodes();
+  </script>
+</body>
+</html>
